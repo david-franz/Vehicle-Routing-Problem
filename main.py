@@ -1,27 +1,30 @@
-import a4.utility as utility
-import a4.loader as loader
+import utility as utility
+import loader as loader
 import numpy as np
-
 
 def main():
 
     # Paths to the data and solution files.
-    vrp_file = "data/n32-k5.vrp"  # "data/n80-k10.vrp"
-    sol_file = "data/n32-k5.sol"  # "data/n80-k10.sol"
+    vrp_file = "vrp-data/n32-k5.vrp"  # "data/n80-k10.vrp"
+    sol_file = "vrp-data/n32-k5.sol"  # "data/n80-k10.sol"
 
     # Loading the VRP data file.
     px, py, demand, capacity, depot = loader.load_data(vrp_file)
 
+    print("demand={}".format(demand))
+    print("capacity={}".format(capacity))
+    print("depot={}".format(depot))
+
     # Displaying to console the distance and visualizing the optimal VRP solution.
     vrp_best_sol = loader.load_solution(sol_file)
-    best_distance = utility.calculate_total_distance(vrp_best_sol, px, py, depot)
-    print("Best VRP Distance:", best_distance)
+    #best_distance = utility.calculate_total_distance(vrp_best_sol, px, py, depot)
+    #print("Best VRP Distance:", best_distance)
     utility.visualise_solution(vrp_best_sol, px, py, depot, "Optimal Solution")
 
     # Executing and visualizing the nearest neighbour VRP heuristic.
     # Uncomment it to do your assignment!
 
-    # nnh_solution = nearest_neighbour_heuristic(px, py, demand, capacity, depot)
+    nnh_solution = nearest_neighbour_heuristic(px, py, demand, capacity, depot)
     # nnh_distance = utility.calculate_total_distance(nnh_solution, px, py, depot)
     # print("Nearest Neighbour VRP Heuristic Distance:", nnh_distance)
     # utility.visualise_solution(nnh_solution, px, py, depot, "Nearest Neighbour Heuristic")
@@ -50,8 +53,25 @@ def nearest_neighbour_heuristic(px, py, demand, capacity, depot):
 
     # TODO - Implement the Nearest Neighbour Heuristic to generate VRP solutions.
 
-    return None
+    routes = list()
+    visited_indexes = [False for i in range(len(px))]
 
+    while(not utility.fully_routed(visited_indexes)):
+        
+        route = list()
+
+        current_index = 1 # the depot
+        route.append(current_index)
+
+        next_index = utility.find_nearest_feasible_index(px, py, route, current_index, visited_indexes, demand)
+        while next_index != 1:
+            route.append(next_index)
+            next_index = utility.find_nearest_feasible_index(px, py, route, current_index, visited_indexes, demand)
+            current_index = next_index
+
+        routes.append(route)
+
+    return routes
 
 def savings_heuristic(px, py, demand, capacity, depot):
 

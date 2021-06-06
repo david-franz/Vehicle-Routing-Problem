@@ -1,6 +1,44 @@
 import matplotlib.pyplot as plt
 import math
+import copy
 
+def find_nearest_feasible_index(px, py, route, current_index, visited_indexes, demand):
+    nearest_feasible_index = 1 # at the start, the only available option is the depot
+    dist_to_index_candidate = float('inf')
+
+    for testing_index, x in enumerate(px):
+        
+        # not visited check
+        for index in route:
+            if index == testing_index:
+                continue
+
+        # not visited check
+        if visited_indexes[testing_index]:
+            continue
+
+        dist_to_testing_index = calculate_euclidean_distance(px, py, current_index, testing_index)
+        
+        # distance improvement check
+        if dist_to_testing_index < dist_to_index_candidate:
+            
+            # capacity check
+            test_route = (copy.deepcopy(route)).append(testing_index)
+
+            if calculate_total_distance(test_route, px, py, 1) <= demand: # try change to <
+                nearest_feasible_index = testing_index
+                dist_to_index_candidate = dist_to_testing_index
+
+    return nearest_feasible_index
+
+def fully_routed(visited_indexes):
+    for index, visited in enumerate(visited_indexes):
+        if (not visited) and (index != 0):
+            return False
+
+    return True
+
+###################################################################################
 
 def calculate_euclidean_distance(px, py, index1, index2):
 
@@ -14,9 +52,7 @@ def calculate_euclidean_distance(px, py, index1, index2):
     :return: Euclidean distance between node 1 and 2.
     """
 
-    # TODO - Implement the euclidean distance function.
-
-    return None
+    return math.sqrt(math.pow(px[index1] - px[index2], 2) + math.pow(px[index1] - px[index2], 2))
 
 
 def calculate_total_distance(routes, px, py, depot):
@@ -30,10 +66,16 @@ def calculate_total_distance(routes, px, py, depot):
     :param depot: Depot.
     :return: Total tour euclidean distance.
     """
+    total = 0
+    for route in routes:
+        for i, loc in enumerate(route):
+            if i == 0:
+                continue
+            total += calculate_total_distance(px, py, loc, route[i-1])
 
-    # TODO - Implement function for finding the total euclidean distance of the learned tour.
+    ## need to calculate the distance back to depot as well for final total
 
-    return None
+    return total
 
 
 def visualise_solution(vrp_sol, px, py, depot, title):
