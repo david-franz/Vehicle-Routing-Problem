@@ -70,8 +70,6 @@ def initialise_routes(index_list):
     routes = list()
 
     for index in index_list:
-        if index == 0:
-            continue
         route = list()
         route.append(0)
         route.append(index)
@@ -79,6 +77,62 @@ def initialise_routes(index_list):
         routes.append(route)
 
     return routes
+
+def calculate_saving(px, py, i, j):
+    return (calculate_euclidean_distance(px, py, i, 0)
+        + calculate_euclidean_distance(px, py, j, 0) 
+            - calculate_euclidean_distance(px, py, i, j))
+
+def calculate_all_savings(px, py, index_list):
+    savings = list()
+
+    for i in index_list:
+        ith_row = list()
+        for j in index_list:
+            ith_row.append(calculate_saving(px, py, i, j))
+        savings.append(ith_row)
+
+    return savings
+
+def find_sublist_number(routes, index_to_find_sublist_of):
+    for number, route in enumerate(routes):
+        for index in route:
+            if index == index_to_find_sublist_of:
+                return number
+
+    return -1
+
+def result_list_capacity(demand, sublist_1, sublist_2):
+    result = sublist_1[:-1] + sublist_2[1:len(sublist_2)]
+
+    return calculate_current_demand_used(result, demand)
+
+
+def merge_routes(routes, available_for_merging, visited_indexes, i, j):
+    route_num_i = find_sublist_number(routes, i)
+    route_num_j = find_sublist_number(routes, j)
+
+    # do merge
+    result = route_i[:-1] + route_j[1:len(route_j)]
+
+    left_most_of_result = result[1]
+    right_most_of_result = result[-2]
+
+    # update visted indexes
+    visited_indexes[left_most_of_result] = True
+    visited_indexes[right_most_of_result] = True
+
+    # update available for merging set
+    for index in result:
+        if index == 0:
+            continue
+        avaialble_for_merging.remove(index)
+    available_for_merging.append(left_most_of_result)
+    available_for_merging.append(right_most_of_result)
+
+    routes.append(result)
+
+    return routes, available_for_merging, visited_indexes
 
 ################################################################################
 

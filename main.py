@@ -89,15 +89,47 @@ def savings_heuristic(px, py, demand, capacity, depot):
     :return: List of vehicle routes (tours).
     """
 
-    routes = utility.initialise_routes([index for index, x in enumerate(px)])
 
-    print(routes)
+    # steps:
+    # visited_indexes = list that gets updated whenever something merges with or gets merged to
+    # ^ie: we want to touch every number (that is not 0) at least once
+    # keep track of indexes avaiable for merging
+    # write function that finds sublist that two indexes are in
+    # write function that checks if a list will be over capacity
+    #
+    # method:
+    # find best viable merge
+    # viable means:
+    #           * both indexes are in available for merge list
+    #           * if we merge the two lists, the result won't be over capacity
+    # do merge
 
 
+    index_list = [index for index, x in enumerate(px)]
+    available_for_merging = index_list[:] # deep copy
+    visited_indexes = [False for i in range(len(px))]
 
-    # TODO - Implement the Saving Heuristic to generate VRP solutions.
+    routes = utility.initialise_routes(index_list)
 
-    return None
+    savings = utility.calculate_all_savings(px, py, index_list)
+    
+    while (not utility.fully_routed(visited_indexes)):
+        best_i, best_j, best_saving = (-1, -1, 0)
+        for i, ith_row in enumerate(savings):
+            for j, val in enumerate(ith_row):
+                if i == 0 or j == 0:
+                    if (i != j) and (savings[i][j] > best_saving) and (i in available_for_merging and j in available_for_merging): 
+                        sublist_num_i = find_sublist_number(routes, i)
+                        sublist_num_j = find_sublist_number(routes, j)
+
+                        if utility.result_list_capacity(demand, routes[sublist_num_i], routes[sublist_num_j]) <= capacity:
+                            best_i = i
+                            best_j = j
+                            best_saving = savings[i][j]
+
+        routes, available_for_merging, visited_indexes = utility.merge_routes(routes, available_for_merging, visited_indexes, best_i, best_j)
+
+    return routes
 
 
 if __name__ == '__main__':
