@@ -129,6 +129,10 @@ def savings_heuristic(px, py, demand, capacity, depot):
 
         routes, available_for_merging, visited_indexes = utility.merge_routes(routes, available_for_merging, visited_indexes, best_i, best_j)
 
+        print(routes)
+
+        break
+
     return routes
 
 

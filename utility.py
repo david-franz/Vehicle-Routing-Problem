@@ -113,7 +113,7 @@ def merge_routes(routes, available_for_merging, visited_indexes, i, j):
     route_num_j = find_sublist_number(routes, j)
 
     # do merge
-    result = route_i[:-1] + route_j[1:len(route_j)]
+    result = routes[route_num_i][:-1] + routes[route_num_j][1:len(routes[route_num_j])]
 
     left_most_of_result = result[1]
     right_most_of_result = result[-2]
@@ -126,7 +126,12 @@ def merge_routes(routes, available_for_merging, visited_indexes, i, j):
     for index in result:
         if index == 0:
             continue
-        avaialble_for_merging.remove(index)
+        try:
+            available_for_merging.remove(index)
+        except ValueError:
+            pass
+            
+    
     available_for_merging.append(left_most_of_result)
     available_for_merging.append(right_most_of_result)
 
