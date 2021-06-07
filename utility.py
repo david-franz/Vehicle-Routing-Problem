@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import math
 
 def find_nearest_feasible_index(px, py, route, current_index, visited_indexes, capacity, demand):
-    nearest_feasible_index = 0 # at the start, the only available option is the depot # make it None?
+    nearest_feasible_index = 0 # at the start, the only available option is the depot
     dist_to_nearest_feasible_index = float('inf')
 
     for testing_index, x in enumerate(px):
@@ -18,44 +18,27 @@ def find_nearest_feasible_index(px, py, route, current_index, visited_indexes, c
         # distance improvement check
         dist_to_testing_index = calculate_euclidean_distance(px, py, current_index, testing_index)
 
-        #print("--------------------------------------")
-        #print("route={}".format(route))
-        #print("current_index={}".format(current_index))
-        #print("testing_index={}".format(testing_index))
-        #print("dist_to_testing_index={}".format(dist_to_testing_index))
-        #print("nearest_feasible_index={}".format(nearest_feasible_index))
-        #print("dist_to_index_candidate={}".format(dist_to_nearest_feasible_index))
-        #print("--------------------------------------")
-
         if dist_to_testing_index < dist_to_nearest_feasible_index:
             # capacity check
-            test_route = route[:]
+            test_route = route[:] # deep copy
             test_route.append(testing_index)
 
-            current_demand_used = calculate_current_demand_used(test_route, demand)
-
-            #print("--------------------------------------")
-            #print("current_demand_used={}".format(current_demand_used))
-            #print("--------------------------------------")
+            current_demand_used = calculate_current_capacity_used(test_route, demand)
 
             if current_demand_used <= capacity:
                 nearest_feasible_index = testing_index
                 dist_to_nearest_feasible_index = dist_to_testing_index
 
-            #if current_demand_used > capacity: # unsure if I need this bit
-            #    nearest_feasible_index = 0
-            #    dist_to_nearest_feasible_index = float('inf')
-
-#    print("capacity_used={}".format(current_demand_used))
-
     return nearest_feasible_index
 
-def calculate_current_demand_used(route, demand):
+
+def calculate_current_capacity_used(route, demand):
     total = 0
     for index in route:
         total += demand[index]
 
     return total
+
 
 def fully_routed(visited_indexes):
     for index, visited in enumerate(visited_indexes):
@@ -78,10 +61,12 @@ def initialise_routes(index_list):
 
     return routes
 
+
 def calculate_saving(px, py, i, j):
     return (calculate_euclidean_distance(px, py, i, 0)
         + calculate_euclidean_distance(px, py, j, 0) 
             - calculate_euclidean_distance(px, py, i, j))
+
 
 def calculate_all_savings(px, py, index_list):
     savings = list()
@@ -94,18 +79,20 @@ def calculate_all_savings(px, py, index_list):
 
     return savings
 
+
 def find_sublist_number(routes, index_to_find_sublist_of):
     for number, route in enumerate(routes):
         for index in route:
             if index == index_to_find_sublist_of:
                 return number
 
-    return -1
+    return -1 # error
+
 
 def result_list_capacity(demand, sublist_1, sublist_2):
     result = sublist_1[:-1] + sublist_2[1:len(sublist_2)]
 
-    return calculate_current_demand_used(result, demand)
+    return calculate_current_capacity_used(result, demand)
 
 
 def merge_routes(routes, available_for_merging, visited_indexes, i, j):
@@ -140,7 +127,7 @@ def merge_routes(routes, available_for_merging, visited_indexes, i, j):
         try:
             available_for_merging.remove(index)
         except ValueError:
-            pass
+            pass # this just means that the index wasn't in the available_for_merging before we tried to remove it (doesn't matter)
             
     available_for_merging.append(left_most_of_result)
     available_for_merging.append(right_most_of_result)
@@ -162,6 +149,7 @@ def calculate_euclidean_distance(px, py, index1, index2):
     """
 
     return math.sqrt(math.pow(px[index1] - px[index2], 2) + math.pow(py[index1] - py[index2], 2))
+
 
 def calculate_total_distance(routes, px, py, depot):
 

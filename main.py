@@ -14,7 +14,7 @@ def main():
     # Displaying to console the distance and visualizing the optimal VRP solution.
     vrp_best_sol = loader.load_solution(sol_file)
     best_distance = utility.calculate_total_distance(vrp_best_sol, px, py, depot)
-    print("Best VRP Distance = {}".format(round(best_distance, 3)))
+    print("Best VRP Distance = {}".format(round(best_distance, 5)))
     utility.visualise_solution(vrp_best_sol, px, py, depot, "Optimal Solution")
 
     # Executing and visualizing the nearest neighbour VRP heuristic.
@@ -22,7 +22,7 @@ def main():
 
     nnh_solution = nearest_neighbour_heuristic(px, py, demand, capacity, depot)
     nnh_distance = utility.calculate_total_distance(nnh_solution, px, py, depot)
-    print("Nearest Neighbour VRP Heuristic Distance = {}".format(round(nnh_distance, 3)))
+    print("Nearest Neighbour VRP Heuristic Distance = {}".format(round(nnh_distance, 5)))
     utility.visualise_solution(nnh_solution, px, py, depot, "Nearest Neighbour Heuristic")
 
     # Executing and visualizing the saving VRP heuristic.
@@ -30,7 +30,7 @@ def main():
     
     sh_solution = savings_heuristic(px, py, demand, capacity, depot)
     sh_distance = utility.calculate_total_distance(sh_solution, px, py, depot)
-    print("Saving VRP Heuristic Distance:", sh_distance)
+    print("Saving VRP Heuristic Distance = {}".format(round(sh_distance, 5)))
     utility.visualise_solution(sh_solution, px, py, depot, "Savings Heuristic")
 
 
@@ -71,10 +71,8 @@ def nearest_neighbour_heuristic(px, py, demand, capacity, depot):
                 continue
             visited_indexes[index] = True
 
-    # increment all by 1 to match input indexing
-    #return [[x+1 for x in route] for route in routes]
-
     return routes
+
 
 def savings_heuristic(px, py, demand, capacity, depot):
 
@@ -89,22 +87,6 @@ def savings_heuristic(px, py, demand, capacity, depot):
     :return: List of vehicle routes (tours).
     """
 
-
-    # steps:
-    # visited_indexes = list that gets updated whenever something merges with or gets merged to
-    # ^ie: we want to touch every number (that is not 0) at least once
-    # keep track of indexes avaiable for merging
-    # write function that finds sublist that two indexes are in
-    # write function that checks if a list will be over capacity
-    #
-    # method:
-    # find best viable merge
-    # viable means:
-    #           * both indexes are in available for merge list
-    #           * if we merge the two lists, the result won't be over capacity
-    # do merge
-
-
     index_list = [index for index, x in enumerate(px)]
     available_for_merging = index_list[:] # deep copy
     visited_indexes = [False for i in range(len(px))]
@@ -114,8 +96,6 @@ def savings_heuristic(px, py, demand, capacity, depot):
     savings = utility.calculate_all_savings(px, py, index_list)
     
     while (not utility.fully_routed(visited_indexes)):
-    #for i in range(3):
-        #print("--------------------------------")
         best_i, best_j, best_saving = (-1, -1, 0)
         for i, ith_row in enumerate(savings):
             for j, val in enumerate(ith_row):
@@ -135,10 +115,6 @@ def savings_heuristic(px, py, demand, capacity, depot):
                         best_saving = savings[i][j]
 
         routes, available_for_merging, visited_indexes = utility.merge_routes(routes, available_for_merging, visited_indexes, best_i, best_j)
-
-        #print(routes)
-        #print(available_for_merging)
-        #print(visited_indexes)
 
     return routes
 
