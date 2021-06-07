@@ -12,26 +12,26 @@ def main():
     px, py, demand, capacity, depot = loader.load_data(vrp_file)
 
     # Displaying to console the distance and visualizing the optimal VRP solution.
-    #vrp_best_sol = loader.load_solution(sol_file)
-    #best_distance = utility.calculate_total_distance(vrp_best_sol, px, py, depot)
-    #print("Best VRP Distance = {}".format(round(best_distance, 3)))
-    #utility.visualise_solution(vrp_best_sol, px, py, depot, "Optimal Solution")
+    vrp_best_sol = loader.load_solution(sol_file)
+    best_distance = utility.calculate_total_distance(vrp_best_sol, px, py, depot)
+    print("Best VRP Distance = {}".format(round(best_distance, 3)))
+    utility.visualise_solution(vrp_best_sol, px, py, depot, "Optimal Solution")
 
     # Executing and visualizing the nearest neighbour VRP heuristic.
     # Uncomment it to do your assignment!
 
-    #nnh_solution = nearest_neighbour_heuristic(px, py, demand, capacity, depot)
-    #nnh_distance = utility.calculate_total_distance(nnh_solution, px, py, depot)
-    #print("Nearest Neighbour VRP Heuristic Distance = {}".format(round(nnh_distance, 3)))
-    #utility.visualise_solution(nnh_solution, px, py, depot, "Nearest Neighbour Heuristic")
+    nnh_solution = nearest_neighbour_heuristic(px, py, demand, capacity, depot)
+    nnh_distance = utility.calculate_total_distance(nnh_solution, px, py, depot)
+    print("Nearest Neighbour VRP Heuristic Distance = {}".format(round(nnh_distance, 3)))
+    utility.visualise_solution(nnh_solution, px, py, depot, "Nearest Neighbour Heuristic")
 
     # Executing and visualizing the saving VRP heuristic.
     # Uncomment it to do your assignment!
     
     sh_solution = savings_heuristic(px, py, demand, capacity, depot)
-    # sh_distance = utility.calculate_total_distance(sh_solution, px, py, depot)
-    # print("Saving VRP Heuristic Distance:", sh_distance)
-    # utility.visualise_solution(sh_solution, px, py, depot, "Savings Heuristic")
+    sh_distance = utility.calculate_total_distance(sh_solution, px, py, depot)
+    print("Saving VRP Heuristic Distance:", sh_distance)
+    utility.visualise_solution(sh_solution, px, py, depot, "Savings Heuristic")
 
 
 def nearest_neighbour_heuristic(px, py, demand, capacity, depot):
@@ -114,24 +114,31 @@ def savings_heuristic(px, py, demand, capacity, depot):
     savings = utility.calculate_all_savings(px, py, index_list)
     
     while (not utility.fully_routed(visited_indexes)):
+    #for i in range(3):
+        #print("--------------------------------")
         best_i, best_j, best_saving = (-1, -1, 0)
         for i, ith_row in enumerate(savings):
             for j, val in enumerate(ith_row):
                 if i == 0 or j == 0:
-                    if (i != j) and (savings[i][j] > best_saving) and (i in available_for_merging and j in available_for_merging): 
-                        sublist_num_i = find_sublist_number(routes, i)
-                        sublist_num_j = find_sublist_number(routes, j)
+                    continue
 
-                        if utility.result_list_capacity(demand, routes[sublist_num_i], routes[sublist_num_j]) <= capacity:
-                            best_i = i
-                            best_j = j
-                            best_saving = savings[i][j]
+                if (i != j) and (savings[i][j] > best_saving) and (i in available_for_merging and j in available_for_merging): 
+                    sublist_num_i = utility.find_sublist_number(routes, i)
+                    sublist_num_j = utility.find_sublist_number(routes, j)
+
+                    if sublist_num_i == sublist_num_j:
+                        continue
+
+                    if utility.result_list_capacity(demand, routes[sublist_num_i], routes[sublist_num_j]) <= capacity:
+                        best_i = i
+                        best_j = j
+                        best_saving = savings[i][j]
 
         routes, available_for_merging, visited_indexes = utility.merge_routes(routes, available_for_merging, visited_indexes, best_i, best_j)
 
-        print(routes)
-
-        break
+        #print(routes)
+        #print(available_for_merging)
+        #print(visited_indexes)
 
     return routes
 

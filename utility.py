@@ -115,6 +115,17 @@ def merge_routes(routes, available_for_merging, visited_indexes, i, j):
     # do merge
     result = routes[route_num_i][:-1] + routes[route_num_j][1:len(routes[route_num_j])]
 
+    # remove old lists
+    for_deletion = list()
+    for_deletion.append(routes[route_num_i])
+    for_deletion.append(routes[route_num_j])
+    for index in sorted(for_deletion, reverse=True): # decrement in reverse order to avoid indexing complications from deletion
+        if index in routes:
+            routes.remove(index)
+
+    # add new result
+    routes.append(result)
+
     left_most_of_result = result[1]
     right_most_of_result = result[-2]
 
@@ -131,11 +142,8 @@ def merge_routes(routes, available_for_merging, visited_indexes, i, j):
         except ValueError:
             pass
             
-    
     available_for_merging.append(left_most_of_result)
     available_for_merging.append(right_most_of_result)
-
-    routes.append(result)
 
     return routes, available_for_merging, visited_indexes
 
