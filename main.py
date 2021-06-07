@@ -16,15 +16,16 @@ def main():
     print("depot={}".format(depot))
 
     # Displaying to console the distance and visualizing the optimal VRP solution.
-    vrp_best_sol = loader.load_solution(sol_file)
+    #vrp_best_sol = loader.load_solution(sol_file)
     #best_distance = utility.calculate_total_distance(vrp_best_sol, px, py, depot)
     #print("Best VRP Distance:", best_distance)
-    utility.visualise_solution(vrp_best_sol, px, py, depot, "Optimal Solution")
+    #utility.visualise_solution(vrp_best_sol, px, py, depot, "Optimal Solution")
 
     # Executing and visualizing the nearest neighbour VRP heuristic.
     # Uncomment it to do your assignment!
 
     nnh_solution = nearest_neighbour_heuristic(px, py, demand, capacity, depot)
+    print(nnh_solution)
     # nnh_distance = utility.calculate_total_distance(nnh_solution, px, py, depot)
     # print("Nearest Neighbour VRP Heuristic Distance:", nnh_distance)
     # utility.visualise_solution(nnh_solution, px, py, depot, "Nearest Neighbour Heuristic")
@@ -48,28 +49,37 @@ def nearest_neighbour_heuristic(px, py, demand, capacity, depot):
     :param demand: List of each nodes demand.
     :param capacity: Vehicle carrying capacity.
     :param depot: Depot.
-    :return: List of vehicle routes (tours).
+    :return: List of vehicle routes (tours).z
     """
-
-    # TODO - Implement the Nearest Neighbour Heuristic to generate VRP solutions.
 
     routes = list()
     visited_indexes = [False for i in range(len(px))]
 
-    while(not utility.fully_routed(visited_indexes)):
+    while (not utility.fully_routed(visited_indexes)):
+
+        print("---------------")
         
         route = list()
 
-        current_index = 1 # the depot
+        current_index = 0 # the depot
         route.append(current_index)
 
-        next_index = utility.find_nearest_feasible_index(px, py, route, current_index, visited_indexes, demand)
-        while next_index != 1:
+        next_index = utility.find_nearest_feasible_index(px, py, route, current_index, visited_indexes, capacity, demand)
+        while next_index != 0:
+            print("current_index={}".format(current_index))
+            print("next_index={}".format(next_index))
             route.append(next_index)
-            next_index = utility.find_nearest_feasible_index(px, py, route, current_index, visited_indexes, demand)
             current_index = next_index
+            next_index = utility.find_nearest_feasible_index(px, py, route, current_index, visited_indexes, capacity, demand)
+
+        #route.append(0) # to complete the loop
 
         routes.append(route)
+        for index in route:
+            visited_indexes[index] = True
+
+        print("---------------")
+        break
 
     return routes
 

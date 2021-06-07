@@ -1,35 +1,57 @@
 import matplotlib.pyplot as plt
 import math
-import copy
 
-def find_nearest_feasible_index(px, py, route, current_index, visited_indexes, demand):
-    nearest_feasible_index = 1 # at the start, the only available option is the depot
-    dist_to_index_candidate = float('inf')
+def find_nearest_feasible_index(px, py, route, current_index, visited_indexes, capacity, demand):
+    nearest_feasible_index = 0 # at the start, the only available option is the depot # make it None?
+    dist_to_nearest_feasible_index = float('inf')
 
     for testing_index, x in enumerate(px):
-        
-        # not visited check
-        for index in route:
-            if index == testing_index:
-                continue
+        if testing_index == current_index:
+            continue
 
         # not visited check
         if visited_indexes[testing_index]:
             continue
-
-        dist_to_testing_index = calculate_euclidean_distance(px, py, current_index, testing_index)
+        if testing_index in route:
+            continue
         
         # distance improvement check
-        if dist_to_testing_index < dist_to_index_candidate:
-            
-            # capacity check
-            test_route = (copy.deepcopy(route)).append(testing_index)
+        dist_to_testing_index = calculate_euclidean_distance(px, py, current_index, testing_index)
 
-            if calculate_total_distance(test_route, px, py, 1) <= demand: # try change to <
+        print("--------------------------------------")
+        print("route={}".format(route))
+        print("current_index={}".format(current_index))
+        print("testing_index={}".format(testing_index))
+        print("dist_to_testing_index={}".format(dist_to_testing_index))
+        print("nearest_feasible_index={}".format(nearest_feasible_index))
+        print("dist_to_index_candidate={}".format(dist_to_nearest_feasible_index))
+        print("--------------------------------------")
+
+        if dist_to_testing_index < dist_to_nearest_feasible_index:
+            # capacity check
+            test_route = route[:]
+            test_route.append(testing_index)
+
+            current_demand_used = calculate_current_demand_used(test_route, demand)
+
+            print("--------------------------------------")
+            print("current_demand_used={}".format(current_demand_used))
+            print("--------------------------------------")
+
+            if calculate_current_demand_used(test_route, demand) < capacity:
                 nearest_feasible_index = testing_index
-                dist_to_index_candidate = dist_to_testing_index
+                dist_to_nearest_feasible_index = dist_to_testing_index
+
+    print("capacity_used={}".format(current_demand_used))
 
     return nearest_feasible_index
+
+def calculate_current_demand_used(route, demand):
+    total = 0
+    for index in route:
+        total += demand[index]
+
+    return total
 
 def fully_routed(visited_indexes):
     for index, visited in enumerate(visited_indexes):
@@ -52,8 +74,7 @@ def calculate_euclidean_distance(px, py, index1, index2):
     :return: Euclidean distance between node 1 and 2.
     """
 
-    return math.sqrt(math.pow(px[index1] - px[index2], 2) + math.pow(px[index1] - px[index2], 2))
-
+    return math.sqrt(math.pow(px[index1] - px[index2], 2) + math.pow(py[index1] - py[index2], 2))
 
 def calculate_total_distance(routes, px, py, depot):
 
@@ -66,14 +87,16 @@ def calculate_total_distance(routes, px, py, depot):
     :param depot: Depot.
     :return: Total tour euclidean distance.
     """
+    print(routes)
+
     total = 0
     for route in routes:
         for i, loc in enumerate(route):
             if i == 0:
                 continue
-            total += calculate_total_distance(px, py, loc, route[i-1])
+            total += calculate_total_distance(px, py, route[i-1], route[i-1])
 
-    ## need to calculate the distance back to depot as well for final total
+        ## need to calculate the distance back to depot as well for final total
 
     return total
 
