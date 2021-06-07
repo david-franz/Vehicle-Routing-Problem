@@ -18,14 +18,14 @@ def find_nearest_feasible_index(px, py, route, current_index, visited_indexes, c
         # distance improvement check
         dist_to_testing_index = calculate_euclidean_distance(px, py, current_index, testing_index)
 
-        print("--------------------------------------")
-        print("route={}".format(route))
-        print("current_index={}".format(current_index))
-        print("testing_index={}".format(testing_index))
-        print("dist_to_testing_index={}".format(dist_to_testing_index))
-        print("nearest_feasible_index={}".format(nearest_feasible_index))
-        print("dist_to_index_candidate={}".format(dist_to_nearest_feasible_index))
-        print("--------------------------------------")
+        #print("--------------------------------------")
+        #print("route={}".format(route))
+        #print("current_index={}".format(current_index))
+        #print("testing_index={}".format(testing_index))
+        #print("dist_to_testing_index={}".format(dist_to_testing_index))
+        #print("nearest_feasible_index={}".format(nearest_feasible_index))
+        #print("dist_to_index_candidate={}".format(dist_to_nearest_feasible_index))
+        #print("--------------------------------------")
 
         if dist_to_testing_index < dist_to_nearest_feasible_index:
             # capacity check
@@ -34,15 +34,19 @@ def find_nearest_feasible_index(px, py, route, current_index, visited_indexes, c
 
             current_demand_used = calculate_current_demand_used(test_route, demand)
 
-            print("--------------------------------------")
-            print("current_demand_used={}".format(current_demand_used))
-            print("--------------------------------------")
+            #print("--------------------------------------")
+            #print("current_demand_used={}".format(current_demand_used))
+            #print("--------------------------------------")
 
-            if calculate_current_demand_used(test_route, demand) < capacity:
+            if current_demand_used <= capacity:
                 nearest_feasible_index = testing_index
                 dist_to_nearest_feasible_index = dist_to_testing_index
 
-    print("capacity_used={}".format(current_demand_used))
+            #if current_demand_used > capacity: # unsure if I need this bit
+            #    nearest_feasible_index = 0
+            #    dist_to_nearest_feasible_index = float('inf')
+
+#    print("capacity_used={}".format(current_demand_used))
 
     return nearest_feasible_index
 
@@ -60,7 +64,23 @@ def fully_routed(visited_indexes):
 
     return True
 
-###################################################################################
+################################################################################
+
+def initialise_routes(index_list):
+    routes = list()
+
+    for index in index_list:
+        if index == 0:
+            continue
+        route = list()
+        route.append(0)
+        route.append(index)
+        route.append(0)
+        routes.append(route)
+
+    return routes
+
+################################################################################
 
 def calculate_euclidean_distance(px, py, index1, index2):
 
@@ -87,16 +107,13 @@ def calculate_total_distance(routes, px, py, depot):
     :param depot: Depot.
     :return: Total tour euclidean distance.
     """
-    print(routes)
 
     total = 0
     for route in routes:
-        for i, loc in enumerate(route):
-            if i == 0:
-                continue
-            total += calculate_total_distance(px, py, route[i-1], route[i-1])
-
-        ## need to calculate the distance back to depot as well for final total
+        prev_index = 0
+        for index in list(route):
+            total += calculate_euclidean_distance(px, py, prev_index, index)
+            prev_index = index
 
     return total
 
